@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Özel Mesaj</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
+                        0 0 30px rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            margin-bottom: 30px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .envelope:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 
+                        0 0 50px rgba(255, 255, 255, 0.7);
+        }
+
+        .envelope:after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                rgba(255, 255, 255, 0.3), 
+                rgba(255, 255, 255, 0)
+            );
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+
+        .heart {
+            color: #ff4d6a;
+            font-size: 80px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 77, 106, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .click-text {
+            font-family: 'Pacifico', cursive;
+            font-size: 28px;
+            color: #ff4d6a;
+            margin-top: 10px;
+            text-shadow: 0 0 5px rgba(255, 77, 106, 0.4);
+            position: relative;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .falling-heart {
+            position: absolute;
+            font-size: 24px;
+            color: #ff4d6a;
+            animation: falling 3s linear forwards;
+            opacity: 0;
+            z-index: 1;
+            filter: drop-shadow(0 0 5px rgba(255, 77, 106, 0.5));
+        }
+
+        @keyframes falling {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Not defteri stili */
+        .notebook-container {
+            display: none;
+            width: 450px;
+            height: 550px;
+            position: relative;
+            perspective: 2000px;
+            margin-top: 20px;
+            z-index: 10;
+        }
+
+        .notebook {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(20deg) rotateY(0deg);
+            background: linear-gradient(to bottom, #f6f6f6, #e6e6e6);
+            border-radius: 10px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.4),
+                inset 0 0 100px rgba(0,0,0,0.05);
+            padding: 20px;
+            border-left: 5px solid #d4d4d4;
+            transition: transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .paper {
+            background-image: 
+                linear-gradient(#e1e1e1 1px, transparent 1px);
+            background-size: 100% 25px;
+            background-position: 0 24px;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 30px 20px 20px;
+            transform-style: preserve-3d;
+        }
+
+        .paper:before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #ff9999;
+        }
+
+        .paper-content {
+            font-family: 'Indie Flower', cursive;
+            font-size: 20px;
+            line-height: 25px; /* Tam çizgilerle hizalama için */
+            color: #333;
+            text-align: center; /* Metni ortala */
+            margin-left: 0; /* Kenar boşluğunu kaldır */
+            padding: 0 20px; /* Yanlarda boşluk bırak */
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .typing-effect {
+            animation: typing 3s steps(40, end) forwards, blink-caret 0.75s step-end infinite;
+            white-space: pre-wrap;
+            overflow: hidden;
+            border-right: 3px solid #ff9999;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes typing {
+            from { 
+                width: 0; 
+                opacity: 1;
+            }
+            to { 
+                width: 100%; 
+                opacity: 1;
+            }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #ff9999; }
+        }
+
+        .notebook:after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-bottom-left-radius: 15px;
+            box-shadow: -5px 5px 5px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .notebook:before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-top-left-radius: 15px;
+            box-shadow: -5px -5px 5px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .notebook-top {
+            position: absolute;
+            top: -20px;
+            left: 30px;
+            right: 30px;
+            height: 20px;
+            background: linear-gradient(to right, #d4d4d4, #f0f0f0);
+            transform: rotateX(85deg);
+            transform-origin: bottom;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Paper tape */
+        .paper-tape {
+            position: absolute;
+            top: 20px;
+            right: 50px;
+            width: 120px;
+            height: 30px;
+            background: linear-gradient(135deg, rgba(255, 204, 204, 0.8), rgba(255, 230, 230, 0.8));
+            transform: rotate(5deg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 3;
+            transition: transform 0.5s ease;
+        }
+
+        .paper-tape:hover {
+            transform: rotate(8deg) scale(1.05);
+        }
+
+        /* Paper worn effect on edges */
+        .paper-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: transparent;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .top-right {
+            top: 0;
+            right: 0;
+            border-bottom-left-radius: 20px;
+            box-shadow: -3px 3px 5px rgba(0,0,0,0.1);
+        }
+
+        .bottom-right {
+            bottom: 0;
+            right: 0;
+            border-top-left-radius: 20px;
+            box-shadow: -3px -3px 5px rgba(0,0,0,0.1);
+        }
+
+        .bottom-left {
+            bottom: 0;
+            left: 0;
+            border-top-right-radius: 20px;
+            box-shadow: 3px -3px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: white;
+            animation: sparkle-animation 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes sparkle-animation {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        /* Font import */
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Indie+Flower&family=Caveat&display=swap');
+    </style>
+</head>
+<body>
+    <div class="envelope" id="envelope">
+        <div class="heart">❤️</div>
+        <div class="click-text">Buna Tıkla</div>
+    </div>
+
+    <div class="notebook-container" id="notebook-container">
+        <div class="notebook-top"></div>
+        <div class="notebook">
+            <div class="paper">
+                <div class="paper-tape"></div>
+                <div class="paper-corner top-right"></div>
+                <div class="paper-corner bottom-right"></div>
+                <div class="paper-corner bottom-left"></div>
+                <div class="paper-content" id="note-content">
+Öznur'um, seni sevmek
+hayatın en güzel hediyesi.
+Kalbim her atışta seni
+fısıldıyor, her gün seninle daha
+güzel. İyi ki varsın.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Arka plana parıltılar ekle
+        function createSparkles() {
+            for (let i = 0; i < 30; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                sparkle.style.left = Math.random() * 100 + 'vw';
+                sparkle.style.top = Math.random() * 100 + 'vh';
+                sparkle.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(sparkle);
+            }
+        }
+        createSparkles();
+
+        document.getElementById('envelope').addEventListener('click', function() {
+            this.style.transform = 'scale(0) rotate(720deg)';
+            this.style.opacity = '0';
+            this.style.transition = 'transform 1s ease, opacity 1s ease';
+            
+            // Biraz bekle sonra zarfı gizle
+            setTimeout(() => {
+                this.style.display = 'none';
+            }, 1000);
+            
+            // Kalpleri yağdır
+            const heartsCount = 60;
+            let heartsFallen = 0;
+            
+            for (let i = 0; i < heartsCount; i++) {
+                setTimeout(function() {
+                    createHeart();
+                }, 1000 + i * 80);
+            }
+            
+            function createHeart() {
+                const heart = document.createElement('div');
+                const heartTypes = ['❤️', '💖', '💕', '💓', '💗', '💘'];
+                heart.innerHTML = heartTypes[Math.floor(Math.random() * heartTypes.length)];
+                heart.classList.add('falling-heart');
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                heart.style.filter = `hue-rotate(${Math.random() * 60 - 30}deg)`;
+                document.body.appendChild(heart);
+                
+                // Kalp animasyonu tamamlandığında kaldır
+                heart.addEventListener('animationend', function() {
+                    heart.remove();
+                    heartsFallen++;
+                    
+                    // Tüm kalpler düştükten sonra notu göster
+                    if (heartsFallen === heartsCount) {
+                        setTimeout(function() {
+                            const notebookContainer = document.getElementById('notebook-container');
+                            notebookContainer.style.display = 'block';
+                            
+                            // Not defteri açılma animasyonu
+                            const notebook = document.querySelector('.notebook');
+                            setTimeout(() => {
+                                notebook.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                                
+                                // Not yazma animasyonu
+                                setTimeout(() => {
+                                    const noteContent = document.getElementById('note-content');
+                                    noteContent.classList.add('typing-effect');
+                                    
+                                    // Not defteri hareket animasyonu
+                                    setInterval(() => {
+                                        const randomX = (Math.random() * 5 - 2.5); // Hareketi azalttım
+                                        const randomY = (Math.random() * 5 - 2.5);
+                                        notebook.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
+                                    }, 3000);
+                                }, 500);
+                            }, 500);
+                        }, 500);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
